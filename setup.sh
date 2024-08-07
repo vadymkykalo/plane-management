@@ -10,8 +10,8 @@ start() {
 
 local-perm() {
     echo "Setting local permissions..."
-    find . ! -path "./storage/*" ! -path "./bootstrap/cache/*" -exec chown $USER_ID:$GROUP_ID {} +
-    find . ! -path "./storage/*" ! -path "./bootstrap/cache/*" -exec chmod 775 {} +
+    find . ! -path "./storage/*" ! -path "./bootstrap/cache/*" -exec sudo chown $USER_ID:$GROUP_ID {} +
+    find . ! -path "./storage/*" ! -path "./bootstrap/cache/*" -exec sudo chmod 775 {} +
 }
 
 cache-perm() {
