@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -23,8 +22,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $this->call(MaintenanceCompanySeeder::class);
         $this->call(AircraftSeeder::class);
+        $this->call(MaintenanceCompanySeeder::class);
         $this->call(ServiceRequestSeeder::class);
     }
 }

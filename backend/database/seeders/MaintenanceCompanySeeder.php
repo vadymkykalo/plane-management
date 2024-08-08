@@ -9,9 +9,15 @@ class MaintenanceCompanySeeder extends Seeder
 {
     public function run()
     {
-        MaintenanceCompany::create(['name' => 'skytech-maintenance', 'contact' => '+1-111-1212', 'specialization' => 'Engine repair']);
-        MaintenanceCompany::create(['name' => 'avionics-experts', 'contact' => '+380931111111', 'specialization' => 'Avionics']);
-        MaintenanceCompany::create(['name' => 'fix-specialists', 'contact' => '+380935555555', 'specialization' => 'Structural repairs']);
-        MaintenanceCompany::create(['name' => 'global-aviation-services', 'contact' => '+380932222222', 'specialization' => 'General maintenance']);
+        $companies = [
+            ['name' => 'SkyTech Maintenance', 'contact' => '+1-555-1212', 'specialization' => 'Engine repair'],
+            ['name' => 'Avionics Experts', 'contact' => '+1-555-3434', 'specialization' => 'Avionics'],
+            ['name' => 'WingFix Specialists', 'contact' => '+1-555-6767', 'specialization' => 'Structural repairs'],
+            ['name' => 'Global Aviation Services', 'contact' => '+1-555-8989', 'specialization' => 'General maintenance'],
+        ];
+
+        foreach ($companies as $company) {
+            MaintenanceCompany::create($company);
+        }
     }
 }

@@ -3,39 +3,65 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ServiceRequestRequest;
+use App\Models\AircraftMaintenanceCompany;
 use App\Models\ServiceRequest;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ServiceRequestController extends Controller
 {
     public function index()
     {
-        return ServiceRequest::where('is_deleted', false)->get();
+        return ServiceRequest::notDeleted()->get();
     }
 
-    public function store(Request $request)
+    public function store(ServiceRequestRequest $request)
     {
-        $serviceRequest = ServiceRequest::create($request->all());
+        $serviceRequest = ServiceRequest::create(array_merge(
+            $request->validated(),
+            [
+                'status' => 'pending'
+            ]
+        ));
+
+        $this->createMaintenanceCompanyRecord($serviceRequest);
+
         return response()->json($serviceRequest, 201);
     }
 
     public function show($id)
     {
-        return ServiceRequest::where('is_deleted', false)->findOrFail($id);
+        $serviceRequest = ServiceRequest::notDeleted()->findOrFail($id);
+        return response()->json($serviceRequest);
     }
 
-    public function update(Request $request, $id)
+    public function update(ServiceRequestRequest $request, $id)
     {
-        $serviceRequest = ServiceRequest::findOrFail($id);
-        $serviceRequest->update($request->all());
+        $serviceRequest = ServiceRequest::notDeleted()->findOrFail($id);
+        $serviceRequest->update($request->validated());
+
+        if ($serviceRequest->status === 'approved') {
+            $this->createMaintenanceCompanyRecord($serviceRequest);
+        }
+
         return response()->json($serviceRequest, 200);
     }
 
     public function destroy($id)
     {
-        $serviceRequest = ServiceRequest::findOrFail($id);
+        $serviceRequest = ServiceRequest::notDeleted()->findOrFail($id);
         $serviceRequest->is_deleted = true;
         $serviceRequest->save();
         return response()->json(null, 204);
+    }
+
+    private function createMaintenanceCompanyRecord(ServiceRequest $serviceRequest)
+    {
+        AircraftMaintenanceCompany::create([
+            'aircraft_id' => $serviceRequest->aircraft_id,
+            'maintenance_company_id' => $serviceRequest->maintenance_company_id,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
     }
 }

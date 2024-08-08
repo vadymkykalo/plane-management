@@ -9,17 +9,30 @@ class MaintenanceCompany extends Model
 {
     use HasFactory;
 
-    protected $hidden = ['is_deleted', 'updated_at'];
+    protected $table = 'maintenance_companies';
 
-    protected $fillable = [
-        'name',
-        'contact',
-        'specialization',
-        'is_deleted'
+    protected $hidden = [
+        'is_deleted', 'created_at', 'updated_at'
+    ];
+
+    protected $fillable = ['name', 'contact', 'specialization'];
+
+    protected $casts = [
+        'is_deleted' => 'boolean',
     ];
 
     public function aircrafts()
     {
-        return $this->hasMany(Aircraft::class);
+        return $this->belongsToMany(Aircraft::class, 'aircraft_maintenance_company');
+    }
+
+    public function serviceRequests()
+    {
+        return $this->hasMany(ServiceRequest::class);
+    }
+
+    public function scopeNotDeleted($query)
+    {
+        return $query->where('is_deleted', false);
     }
 }

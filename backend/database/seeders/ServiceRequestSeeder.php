@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Aircraft;
+use App\Models\AircraftMaintenanceCompany;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use App\Models\ServiceRequest;
 
@@ -10,15 +11,27 @@ class ServiceRequestSeeder extends Seeder
 {
     public function run()
     {
-        $aircraft1 = Aircraft::where('serial_number', '12345')->first()->id;
-        $aircraft2 = Aircraft::where('serial_number', '67890')->first()->id;
-        $aircraft3 = Aircraft::where('serial_number', '54321')->first()->id;
-        $aircraft4 = Aircraft::where('serial_number', '98765')->first()->id;
+        $requests = [
+            ['aircraft_id' => 1, 'issue_description' => 'Engine inspection required', 'priority' => 'High', 'due_date' => '2024-08-15', 'status' => 'pending'],
+            ['aircraft_id' => 2, 'issue_description' => 'Cabin maintenance', 'priority' => 'Medium', 'due_date' => '2024-09-01', 'status' => 'pending'],
+            ['aircraft_id' => 3, 'issue_description' => 'Avionics system check', 'priority' => 'Low', 'due_date' => '2024-09-15', 'status' => 'in_progress'],
+            ['aircraft_id' => 1, 'issue_description' => 'Landing gear maintenance', 'priority' => 'High', 'due_date' => '2024-08-22', 'status' => 'completed'],
+            ['aircraft_id' => 4, 'issue_description' => 'Software update', 'priority' => 'Medium', 'due_date' => '2024-10-05', 'status' => 'completed'],
+        ];
 
-        ServiceRequest::create(['aircraft_id' => $aircraft1, 'issue_description' => 'Engine inspection required', 'priority' => 'High', 'due_date' => '2024-08-15']);
-        ServiceRequest::create(['aircraft_id' => $aircraft2, 'issue_description' => 'Cabin maintenance', 'priority' => 'Medium', 'due_date' => '2024-09-01']);
-        ServiceRequest::create(['aircraft_id' => $aircraft3, 'issue_description' => 'Avionics system check', 'priority' => 'Low', 'due_date' => '2024-09-15']);
-        ServiceRequest::create(['aircraft_id' => $aircraft1, 'issue_description' => 'Landing gear maintenance', 'priority' => 'High', 'due_date' => '2024-08-22']);
-        ServiceRequest::create(['aircraft_id' => $aircraft4, 'issue_description' => 'Software update', 'priority' => 'Medium', 'due_date' => '2024-10-05']);
+        foreach ($requests as $request) {
+            $maintenanceCompanyId = ($request['aircraft_id'] % 2 == 0) ? 1 : 2;
+
+            $serviceRequest = ServiceRequest::create(array_merge($request, ['maintenance_company_id' => $maintenanceCompanyId]));
+
+            if (in_array($serviceRequest->status, ['in_progress', 'completed'])) {
+                AircraftMaintenanceCompany::create([
+                    'aircraft_id' => $serviceRequest->aircraft_id,
+                    'maintenance_company_id' => $maintenanceCompanyId,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]);
+            }
+        }
     }
 }

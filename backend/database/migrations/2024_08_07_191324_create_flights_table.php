@@ -11,37 +11,42 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('aircrafts', function (Blueprint $table) {
+            $table->id();
+            $table->string('model');
+            $table->string('serial_number')->unique();
+            $table->string('registration')->unique();
+            $table->timestamps();
+            $table->boolean('is_deleted')->default(false);
+        });
+
         Schema::create('maintenance_companies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('contact');
             $table->string('specialization');
-            $table->boolean('is_deleted')->default(false);
             $table->timestamps();
-        });
-
-        Schema::create('aircraft', function (Blueprint $table) {
-            $table->id();
-            $table->string('model');
-            $table->string('serial_number')->unique();
-            $table->string('registration')->unique();
-            $table->text('maintenance_history')->nullable();
-            $table->unsignedBigInteger('maintenance_company_id')->nullable();
-            $table->foreign('maintenance_company_id')->references('id')->on('maintenance_companies')->onDelete('cascade');
             $table->boolean('is_deleted')->default(false);
-            $table->timestamps();
         });
 
         Schema::create('service_requests', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('aircraft_id');
-            $table->foreign('aircraft_id')->references('id')->on('aircraft')->onDelete('cascade');
+            $table->foreignId('aircraft_id')->constrained('aircrafts');
+            $table->foreignId('maintenance_company_id')->nullable()->constrained('maintenance_companies');
             $table->text('issue_description');
             $table->enum('priority', ['Low', 'Medium', 'High']);
             $table->date('due_date');
             $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
-            $table->boolean('is_deleted')->default(false);
             $table->timestamps();
+            $table->boolean('is_deleted')->default(false);
+        });
+
+        Schema::create('aircraft_maintenance_company', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('aircraft_id')->constrained('aircrafts');
+            $table->foreignId('maintenance_company_id')->constrained('maintenance_companies');
+            $table->timestamps();
+            $table->boolean('is_deleted')->default(false);
         });
     }
 
@@ -50,8 +55,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('aircraft_maintenance_company');
         Schema::dropIfExists('service_requests');
-        Schema::dropIfExists('aircraft');
         Schema::dropIfExists('maintenance_companies');
+        Schema::dropIfExists('aircrafts');
     }
 };

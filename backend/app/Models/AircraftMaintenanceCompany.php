@@ -5,22 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ServiceRequest extends Model
+class AircraftMaintenanceCompany extends Model
 {
     use HasFactory;
 
-    protected $table = 'service_requests';
+    protected $table = 'aircraft_maintenance_company';
 
     protected $hidden = [
         'is_deleted', 'created_at', 'updated_at'
     ];
 
     protected $fillable = [
-        'aircraft_id', 'maintenance_company_id', 'issue_description', 'priority', 'due_date', 'status'
-    ];
-
-    protected $casts = [
-        'is_deleted' => 'boolean',
+        'aircraft_id', 'maintenance_company_id', 'created_at', 'updated_at'
     ];
 
     public function aircraft()
@@ -32,9 +28,5 @@ class ServiceRequest extends Model
     {
         return $this->belongsTo(MaintenanceCompany::class);
     }
-
-    public function scopeNotDeleted($query)
-    {
-        return $query->where('is_deleted', false);
-    }
 }
+

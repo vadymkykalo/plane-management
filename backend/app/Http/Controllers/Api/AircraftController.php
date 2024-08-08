@@ -3,37 +3,38 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AircraftRequest;
 use App\Models\Aircraft;
-use Illuminate\Http\Request;
 
 class AircraftController extends Controller
 {
     public function index()
     {
-        return Aircraft::where('is_deleted', false)->get();
+        return Aircraft::notDeleted()->get();
     }
 
-    public function store(Request $request)
+    public function store(AircraftRequest $request)
     {
-        $aircraft = Aircraft::create($request->all());
+        $aircraft = Aircraft::create($request->validated());
         return response()->json($aircraft, 201);
     }
 
     public function show($id)
     {
-        return Aircraft::where('is_deleted', false)->findOrFail($id);
+        $aircraft = Aircraft::notDeleted()->findOrFail($id);
+        return response()->json($aircraft);
     }
 
-    public function update(Request $request, $id)
+    public function update(AircraftRequest $request, $id)
     {
-        $aircraft = Aircraft::findOrFail($id);
-        $aircraft->update($request->all());
+        $aircraft = Aircraft::notDeleted()->findOrFail($id);
+        $aircraft->update($request->validated());
         return response()->json($aircraft, 200);
     }
 
     public function destroy($id)
     {
-        $aircraft = Aircraft::findOrFail($id);
+        $aircraft = Aircraft::notDeleted()->findOrFail($id);
         $aircraft->is_deleted = true;
         $aircraft->save();
         return response()->json(null, 204);

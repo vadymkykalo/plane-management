@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MaintenanceCompanyRequest;
 use App\Models\MaintenanceCompany;
-use Illuminate\Http\Request;
 
 class MaintenanceCompanyController extends Controller
 {
@@ -13,27 +13,28 @@ class MaintenanceCompanyController extends Controller
         return MaintenanceCompany::where('is_deleted', false)->get();
     }
 
-    public function store(Request $request)
+    public function store(MaintenanceCompanyRequest $request)
     {
-        $maintenanceCompany = MaintenanceCompany::create($request->all());
+        $maintenanceCompany = MaintenanceCompany::create($request->validated());
         return response()->json($maintenanceCompany, 201);
     }
 
     public function show($id)
     {
-        return MaintenanceCompany::where('is_deleted', false)->findOrFail($id);
+        $maintenanceCompany = MaintenanceCompany::notDeleted()->findOrFail($id);
+        return response()->json($maintenanceCompany);
     }
 
-    public function update(Request $request, $id)
+    public function update(MaintenanceCompanyRequest $request, $id)
     {
-        $maintenanceCompany = MaintenanceCompany::findOrFail($id);
-        $maintenanceCompany->update($request->all());
+        $maintenanceCompany = MaintenanceCompany::notDeleted()->findOrFail($id);
+        $maintenanceCompany->update($request->validated());
         return response()->json($maintenanceCompany, 200);
     }
 
     public function destroy($id)
     {
-        $maintenanceCompany = MaintenanceCompany::findOrFail($id);
+        $maintenanceCompany = MaintenanceCompany::notDeleted()->findOrFail($id);
         $maintenanceCompany->is_deleted = true;
         $maintenanceCompany->save();
         return response()->json(null, 204);
