@@ -14,7 +14,7 @@ class ServiceRequestController extends Controller
 {
     public function index()
     {
-        return ServiceRequest::notDeleted()->get();
+        return ServiceRequest::get();
     }
 
     public function store(ServiceRequestRequest $request)
@@ -31,29 +31,21 @@ class ServiceRequestController extends Controller
 
     public function show($id)
     {
-        $serviceRequest = ServiceRequest::notDeleted()->findOrFail($id);
+        $serviceRequest = ServiceRequest::findOrFail($id);
         return response()->json($serviceRequest);
     }
 
     public function update(ServiceRequestRequest $request, $id)
     {
-        $serviceRequest = ServiceRequest::notDeleted()->findOrFail($id);
+        $serviceRequest = ServiceRequest::findOrFail($id);
         $serviceRequest->update($request->validated());
 
         return response()->json($serviceRequest, 200);
     }
 
-    public function destroy($id)
-    {
-        $serviceRequest = ServiceRequest::notDeleted()->findOrFail($id);
-        $serviceRequest->is_deleted = true;
-        $serviceRequest->save();
-        return response()->json(null, 204);
-    }
-
     public function updateStatus(ServiceRequestUpdateStatusRequest $request, $id)
     {
-        $serviceRequest = ServiceRequest::notDeleted()->findOrFail($id);
+        $serviceRequest = ServiceRequest::findOrFail($id);
         $currentDate = Carbon::now();
 
         switch ($request->status) {

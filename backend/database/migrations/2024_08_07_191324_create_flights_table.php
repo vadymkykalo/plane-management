@@ -38,7 +38,6 @@ return new class extends Migration
             $table->date('due_date');
             $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
             $table->timestamps();
-            $table->boolean('is_deleted')->default(false);
         });
 
         Schema::create('aircraft_maintenance_company', function (Blueprint $table) {

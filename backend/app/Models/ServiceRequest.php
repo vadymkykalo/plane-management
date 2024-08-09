@@ -16,15 +16,11 @@ class ServiceRequest extends Model
     protected $table = 'service_requests';
 
     protected $hidden = [
-        'is_deleted', 'created_at', 'updated_at'
+        'created_at', 'updated_at'
     ];
 
     protected $fillable = [
         'aircraft_id', 'maintenance_company_id', 'issue_description', 'priority', 'due_date', 'status'
-    ];
-
-    protected $casts = [
-        'is_deleted' => 'boolean',
     ];
 
     public function aircraft()
@@ -35,10 +31,5 @@ class ServiceRequest extends Model
     public function maintenanceCompany()
     {
         return $this->belongsTo(MaintenanceCompany::class);
-    }
-
-    public function scopeNotDeleted($query)
-    {
-        return $query->where('is_deleted', false);
     }
 }
