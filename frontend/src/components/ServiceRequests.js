@@ -54,6 +54,11 @@ function ServiceRequests() {
         fetchRequests();
     };
 
+    const handleStatusUpdate = async (id, newStatus) => {
+        await axios.patch(`http://localhost:8080/api/service_requests/${id}/status`, { status: newStatus });
+        fetchRequests();
+    };
+
     return (
         <div className="service-requests-container">
             <h2>Service Request Management</h2>
@@ -84,7 +89,11 @@ function ServiceRequests() {
                 {requests.map(request => (
                     <li key={request.id} className="service-request-item">
                         <span>{request.issue_description} - {request.priority} - {request.due_date}</span>
-                        <button onClick={() => handleDelete(request.id)}>Delete</button>
+                        <div className="button-group">
+                            <button className="status-button" onClick={() => handleStatusUpdate(request.id, 'in_progress')}>Mark In Progress</button>
+                            <button className="status-button" onClick={() => handleStatusUpdate(request.id, 'completed')}>Mark Completed</button>
+                            <button className="delete-button" onClick={() => handleDelete(request.id)}>Delete</button>
+                        </div>
                     </li>
                 ))}
             </ul>

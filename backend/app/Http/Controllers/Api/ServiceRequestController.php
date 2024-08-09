@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ServiceRequestRequest;
+use App\Http\Requests\ServiceRequestUpdateStatusRequest;
 use App\Models\AircraftMaintenanceCompany;
 use App\Models\ServiceRequest;
 use Carbon\Carbon;
@@ -38,10 +39,6 @@ class ServiceRequestController extends Controller
         $serviceRequest = ServiceRequest::notDeleted()->findOrFail($id);
         $serviceRequest->update($request->validated());
 
-        if ($serviceRequest->status === 'in_progress') {
-            $this->createMaintenanceCompanyRecord($serviceRequest);
-        }
-
         return response()->json($serviceRequest, 200);
     }
 
@@ -53,10 +50,23 @@ class ServiceRequestController extends Controller
         return response()->json(null, 204);
     }
 
+    public function updateStatus(ServiceRequestUpdateStatusRequest $request, $id)
+    {
+        $serviceRequest = ServiceRequest::notDeleted()->findOrFail($id);
+        $serviceRequest->status = $request->status;
+        $serviceRequest->save();
+
+        if ($serviceRequest->status === 'in_progress') {
+            $this->createMaintenanceCompanyRecord($serviceRequest);
+        }
+
+        return response()->json($serviceRequest, 200);
+    }
+
     private function createMaintenanceCompanyRecord(ServiceRequest $serviceRequest)
     {
         AircraftMaintenanceCompany::create([
-            'service_requests_id' => $serviceRequest->service_requests_id,
+            'service_requests_id' => $serviceRequest->id,
             'aircraft_id' => $serviceRequest->aircraft_id,
             'maintenance_company_id' => $serviceRequest->maintenance_company_id,
             'created_at' => Carbon::now(),

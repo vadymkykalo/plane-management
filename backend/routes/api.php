@@ -10,4 +10,5 @@ Route::middleware('api')->group(function () {
     Route::apiResource('service_requests', ServiceRequestController::class);
     Route::apiResource('maintenance_companies', MaintenanceCompanyController::class);
     Route::get('/aircrafts/{id}/maintenance-history', [AircraftController::class, 'maintenanceHistory']);
+    Route::patch('/service_requests/{id}/status', [ServiceRequestController::class, 'updateStatus']);
 });
