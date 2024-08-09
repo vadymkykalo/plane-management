@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './Aircrafts.css'; // Подключаем файл стилей
+import './Aircrafts.css';
 
 function Aircrafts() {
     const [aircrafts, setAircrafts] = useState([]);
     const [model, setModel] = useState('');
     const [serialNumber, setSerialNumber] = useState('');
     const [registration, setRegistration] = useState('');
+    const [maintenanceHistory, setMaintenanceHistory] = useState([]);
+    const [selectedAircraftId, setSelectedAircraftId] = useState(null);
+    const [historyLoaded, setHistoryLoaded] = useState(false);
 
     useEffect(() => {
         fetchAircrafts();
@@ -18,6 +21,25 @@ function Aircrafts() {
             setAircrafts(response.data);
         } catch (error) {
             console.error('Error fetching aircrafts:', error);
+        }
+    };
+
+    const fetchMaintenanceHistory = async (aircraftId) => {
+        try {
+            if (selectedAircraftId === aircraftId) {
+
+                setSelectedAircraftId(null);
+                setMaintenanceHistory([]);
+                setHistoryLoaded(false);
+            } else {
+                const response = await axios.get(`http://localhost:8080/api/aircrafts/${aircraftId}/maintenance-history`);
+                setMaintenanceHistory(response.data);
+                setSelectedAircraftId(aircraftId);
+                setHistoryLoaded(true);
+            }
+        } catch (error) {
+            console.error('Error fetching maintenance history:', error);
+            setHistoryLoaded(true);
         }
     };
 
@@ -42,12 +64,12 @@ function Aircrafts() {
 
     const handleDelete = async (id) => {
         await axios.delete(`http://localhost:8080/api/aircrafts/${id}`);
-        fetchAircrafts();  // Обновление списка после удаления
+        fetchAircrafts();
     };
 
     return (
         <div className="aircraft-container">
-            <h2>Aircrafts</h2>
+            <h2>Aircraft Management</h2>
             <form onSubmit={createAircraft} className="input-group">
                 <input
                     type="text"
@@ -75,8 +97,27 @@ function Aircrafts() {
                         <span>{aircraft.model} - {aircraft.serial_number} - {aircraft.registration}</span>
                         <div className="button-group">
                             <button className="edit-button" onClick={() => handleEdit(aircraft)}>Edit</button>
+                            <button className="history-button" onClick={() => fetchMaintenanceHistory(aircraft.id)}>Companies history</button>
                             <button className="delete-button" onClick={() => handleDelete(aircraft.id)}>Delete</button>
                         </div>
+                        {selectedAircraftId === aircraft.id && (
+                            <div className="maintenance-history">
+                                <h3>Maintenance History</h3>
+                                {maintenanceHistory.length > 0 ? (
+                                    <ul>
+                                        {maintenanceHistory.map(historyItem => (
+                                            <li key={historyItem.id}>
+                                                <strong>{historyItem.maintenance_company.name}</strong><br/>
+                                                Contact: {historyItem.maintenance_company.contact}<br/>
+                                                Specialization: {historyItem.maintenance_company.specialization}<br/>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    historyLoaded && <p>No maintenance history available for this aircraft.</p>
+                                )}
+                            </div>
+                        )}
                     </li>
                 ))}
             </ul>

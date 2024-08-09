@@ -24,8 +24,6 @@ class ServiceRequestController extends Controller
             ]
         ));
 
-        $this->createMaintenanceCompanyRecord($serviceRequest);
-
         return response()->json($serviceRequest, 201);
     }
 
@@ -40,7 +38,7 @@ class ServiceRequestController extends Controller
         $serviceRequest = ServiceRequest::notDeleted()->findOrFail($id);
         $serviceRequest->update($request->validated());
 
-        if ($serviceRequest->status === 'approved') {
+        if ($serviceRequest->status === 'in_progress') {
             $this->createMaintenanceCompanyRecord($serviceRequest);
         }
 

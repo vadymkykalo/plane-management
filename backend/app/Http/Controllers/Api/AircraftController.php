@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AircraftRequest;
 use App\Models\Aircraft;
+use App\Models\AircraftMaintenanceCompany;
 
 class AircraftController extends Controller
 {
@@ -38,5 +39,15 @@ class AircraftController extends Controller
         $aircraft->is_deleted = true;
         $aircraft->save();
         return response()->json(null, 204);
+    }
+
+    public function maintenanceHistory($aircraftId)
+    {
+        $history = AircraftMaintenanceCompany::where('aircraft_id', $aircraftId)
+            ->orderBy('created_at', 'desc')
+            ->with('maintenanceCompany')
+            ->get();
+
+        return response()->json($history);
     }
 }

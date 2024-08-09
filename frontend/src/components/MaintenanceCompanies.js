@@ -50,7 +50,7 @@ function MaintenanceCompanies() {
 
     return (
         <div className="maintenance-companies-container">
-            <h1>Maintenance Companies</h1>
+            <h2>Maintenance Companies</h2>
             <form onSubmit={handleSubmit} className="input-group">
                 <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Name" required />
                 <input type="text" name="contact" value={formData.contact} onChange={handleChange} placeholder="Contact" required />
