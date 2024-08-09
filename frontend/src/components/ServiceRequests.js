@@ -56,7 +56,7 @@ function ServiceRequests() {
 
     return (
         <div className="service-requests-container">
-            <h2>Service Requests</h2>
+            <h2>Service Request Management</h2>
             <form onSubmit={handleSubmit} className="input-group">
                 <select name="aircraft_id" value={formData.aircraft_id} onChange={handleChange} required>
                     <option value="">Select Aircraft</option>

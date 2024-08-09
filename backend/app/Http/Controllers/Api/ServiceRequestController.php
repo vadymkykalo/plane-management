@@ -56,6 +56,7 @@ class ServiceRequestController extends Controller
     private function createMaintenanceCompanyRecord(ServiceRequest $serviceRequest)
     {
         AircraftMaintenanceCompany::create([
+            'service_requests_id' => $serviceRequest->service_requests_id,
             'aircraft_id' => $serviceRequest->aircraft_id,
             'maintenance_company_id' => $serviceRequest->maintenance_company_id,
             'created_at' => Carbon::now(),

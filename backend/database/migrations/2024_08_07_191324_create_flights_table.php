@@ -43,6 +43,7 @@ return new class extends Migration
 
         Schema::create('aircraft_maintenance_company', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('service_requests_id')->constrained('service_requests');
             $table->foreignId('aircraft_id')->constrained('aircrafts');
             $table->foreignId('maintenance_company_id')->constrained('maintenance_companies');
             $table->timestamps();

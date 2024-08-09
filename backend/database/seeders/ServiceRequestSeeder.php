@@ -26,6 +26,7 @@ class ServiceRequestSeeder extends Seeder
 
             if (in_array($serviceRequest->status, ['in_progress', 'completed'])) {
                 AircraftMaintenanceCompany::create([
+                    'service_requests_id' => $serviceRequest->id,
                     'aircraft_id' => $serviceRequest->aircraft_id,
                     'maintenance_company_id' => $maintenanceCompanyId,
                     'created_at' => Carbon::now(),

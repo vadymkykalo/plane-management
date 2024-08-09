@@ -16,8 +16,13 @@ class AircraftMaintenanceCompany extends Model
     ];
 
     protected $fillable = [
-        'aircraft_id', 'maintenance_company_id', 'created_at', 'updated_at'
+        'service_requests_id', 'aircraft_id', 'maintenance_company_id', 'created_at', 'updated_at'
     ];
+
+    public function serviceRequest()
+    {
+        return $this->belongsTo(ServiceRequest::class);
+    }
 
     public function aircraft()
     {
