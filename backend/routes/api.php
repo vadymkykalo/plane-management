@@ -9,6 +9,7 @@ Route::middleware('api')->group(function () {
     Route::apiResource('aircrafts', AircraftController::class);
     Route::apiResource('service_requests', ServiceRequestController::class);
     Route::apiResource('maintenance_companies', MaintenanceCompanyController::class);
-    Route::get('/aircrafts/{id}/maintenance-history', [AircraftController::class, 'maintenanceHistory']);
+    Route::get('/aircrafts/{id}/maintenance_history', [AircraftController::class, 'maintenanceHistory']);
     Route::patch('/service_requests/{id}/status', [ServiceRequestController::class, 'updateStatus']);
+    Route::get('/maintenance_companies/{id}/maintenance_history', [MaintenanceCompanyController::class, 'maintenanceHistory']);
 });

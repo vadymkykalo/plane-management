@@ -32,7 +32,7 @@ function Aircrafts() {
                 setMaintenanceHistory([]);
                 setHistoryLoaded(false);
             } else {
-                const response = await axios.get(`http://localhost:8080/api/aircrafts/${aircraftId}/maintenance-history`);
+                const response = await axios.get(`http://localhost:8080/api/aircrafts/${aircraftId}/maintenance_history`);
                 setMaintenanceHistory(response.data);
                 setSelectedAircraftId(aircraftId);
                 setHistoryLoaded(true);

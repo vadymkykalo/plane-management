@@ -21,7 +21,7 @@ class AircraftMaintenanceCompany extends Model
 
     public function serviceRequest()
     {
-        return $this->belongsTo(ServiceRequest::class);
+        return $this->belongsTo(ServiceRequest::class, 'service_requests_id', 'id');
     }
 
     public function aircraft()
