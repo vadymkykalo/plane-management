@@ -49,11 +49,6 @@ function ServiceRequests() {
         fetchRequests();
     };
 
-    const handleDelete = async (id) => {
-        await axios.delete(`http://localhost:8080/api/service_requests/${id}`);
-        fetchRequests();
-    };
-
     const handleStatusUpdate = async (id, newStatus) => {
         const currentDateTime = new Date().toISOString();
         await axios.patch(`http://localhost:8080/api/service_requests/${id}/status`, { status: newStatus, updated_at: currentDateTime });
@@ -107,7 +102,6 @@ function ServiceRequests() {
                         <span>{request.issue_description} - {request.priority} - {request.due_date}</span>
                         <div className="button-group">
                             {renderStatusButton(request)}
-                            <button className="delete-button" onClick={() => handleDelete(request.id)}>Delete</button>
                         </div>
                     </li>
                 ))}

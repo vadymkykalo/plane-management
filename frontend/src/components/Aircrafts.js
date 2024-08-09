@@ -10,6 +10,7 @@ function Aircrafts() {
     const [maintenanceHistory, setMaintenanceHistory] = useState([]);
     const [selectedAircraftId, setSelectedAircraftId] = useState(null);
     const [historyLoaded, setHistoryLoaded] = useState(false);
+    const [editingAircraftId, setEditingAircraftId] = useState(null);
 
     useEffect(() => {
         fetchAircrafts();
@@ -27,7 +28,6 @@ function Aircrafts() {
     const fetchMaintenanceHistory = async (aircraftId) => {
         try {
             if (selectedAircraftId === aircraftId) {
-
                 setSelectedAircraftId(null);
                 setMaintenanceHistory([]);
                 setHistoryLoaded(false);
@@ -43,34 +43,58 @@ function Aircrafts() {
         }
     };
 
-    const createAircraft = async () => {
+    const createOrUpdateAircraft = async (e) => {
+        e.preventDefault();
+
         try {
-            const response = await axios.post('http://localhost:8080/api/aircrafts', {
-                model,
-                serial_number: serialNumber,
-                registration
-            });
-            setAircrafts([...aircrafts, response.data]);
+            if (editingAircraftId) {
+                await axios.put(`http://localhost:8080/api/aircrafts/${editingAircraftId}`, {
+                    model,
+                    serial_number: serialNumber,
+                    registration
+                });
+            } else {
+                const response = await axios.post('http://localhost:8080/api/aircrafts', {
+                    model,
+                    serial_number: serialNumber,
+                    registration
+                });
+                setAircrafts([...aircrafts, response.data]);
+            }
+            resetForm();
+            fetchAircrafts();
         } catch (error) {
-            console.error('Error creating aircraft:', error);
+            console.error('Error creating/updating aircraft:', error);
         }
+    };
+
+    const resetForm = () => {
+        setModel('');
+        setSerialNumber('');
+        setRegistration('');
+        setEditingAircraftId(null);
     };
 
     const handleEdit = (aircraft) => {
         setModel(aircraft.model);
         setSerialNumber(aircraft.serial_number);
         setRegistration(aircraft.registration);
+        setEditingAircraftId(aircraft.id);
     };
 
     const handleDelete = async (id) => {
-        await axios.delete(`http://localhost:8080/api/aircrafts/${id}`);
-        fetchAircrafts();
+        try {
+            await axios.delete(`http://localhost:8080/api/aircrafts/${id}`);
+            fetchAircrafts();
+        } catch (error) {
+            console.error('Error deleting aircraft:', error);
+        }
     };
 
     return (
         <div className="aircraft-container">
             <h2>Aircraft Management</h2>
-            <form onSubmit={createAircraft} className="input-group">
+            <form onSubmit={createOrUpdateAircraft} className="input-group">
                 <input
                     type="text"
                     placeholder="Model"
@@ -89,7 +113,7 @@ function Aircrafts() {
                     value={registration}
                     onChange={(e) => setRegistration(e.target.value)}
                 />
-                <button type="submit">Create</button>
+                <button type="submit">{editingAircraftId ? 'Update' : 'Create'}</button>
             </form>
             <ul className="aircraft-list">
                 {aircrafts.map((aircraft) => (
