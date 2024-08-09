@@ -55,8 +55,24 @@ function ServiceRequests() {
     };
 
     const handleStatusUpdate = async (id, newStatus) => {
-        await axios.patch(`http://localhost:8080/api/service_requests/${id}/status`, { status: newStatus });
+        const currentDateTime = new Date().toISOString();
+        await axios.patch(`http://localhost:8080/api/service_requests/${id}/status`, { status: newStatus, updated_at: currentDateTime });
         fetchRequests();
+    };
+
+    const renderStatusButton = (request) => {
+        const currentDate = new Date();
+        const dueDate = new Date(request.due_date);
+
+        if (request.status === 'pending' && dueDate > currentDate) {
+            return <button className="status-button inactive" disabled>Pending (Awaiting Due Date)</button>;
+        } else if (request.status === 'pending' && dueDate <= currentDate) {
+            return <button className="status-button active" onClick={() => handleStatusUpdate(request.id, 'in_progress')}>Mark In Progress</button>;
+        } else if (request.status === 'in_progress') {
+            return <button className="status-button active" onClick={() => handleStatusUpdate(request.id, 'completed')}>Mark Completed</button>;
+        } else if (request.status === 'completed') {
+            return <button className="status-button inactive" disabled>Completed</button>;
+        }
     };
 
     return (
@@ -90,8 +106,7 @@ function ServiceRequests() {
                     <li key={request.id} className="service-request-item">
                         <span>{request.issue_description} - {request.priority} - {request.due_date}</span>
                         <div className="button-group">
-                            <button className="status-button" onClick={() => handleStatusUpdate(request.id, 'in_progress')}>Mark In Progress</button>
-                            <button className="status-button" onClick={() => handleStatusUpdate(request.id, 'completed')}>Mark Completed</button>
+                            {renderStatusButton(request)}
                             <button className="delete-button" onClick={() => handleDelete(request.id)}>Delete</button>
                         </div>
                     </li>

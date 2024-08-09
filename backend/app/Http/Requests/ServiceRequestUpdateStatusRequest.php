@@ -15,6 +15,11 @@ class ServiceRequestUpdateStatusRequest extends FormRequest
     {
         return [
             'status' => 'required|in:pending,in_progress,completed',
+            'updated_at' => [
+                'required',
+                'date',
+                'after_or_equal:now',
+            ],
         ];
     }
 }

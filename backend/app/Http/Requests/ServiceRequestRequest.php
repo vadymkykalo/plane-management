@@ -18,7 +18,11 @@ class ServiceRequestRequest extends FormRequest
             'maintenance_company_id' => 'nullable|exists:maintenance_companies,id',
             'issue_description' => 'required|string',
             'priority' => 'required|in:Low,Medium,High',
-            'due_date' => 'required|date',
+            'due_date' => [
+                'required',
+                'date',
+                'after_or_equal:now',
+            ],
             'status' => 'in:pending,in_progress,completed',
         ];
     }

@@ -60,7 +60,7 @@
     gap: 10px;
 }
 
-.status-button {
+.status-button.active {
     background-color: #007bff;
     padding: 5px 10px;
     border: none;
@@ -69,8 +69,17 @@
     cursor: pointer;
 }
 
-.status-button:hover {
+.status-button.active:hover {
     background-color: #0056b3;
+}
+
+.status-button.inactive {
+    background-color: #6c757d;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: not-allowed;
 }
 
 .delete-button {

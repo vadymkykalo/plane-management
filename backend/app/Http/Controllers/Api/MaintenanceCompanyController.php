@@ -10,7 +10,7 @@ class MaintenanceCompanyController extends Controller
 {
     public function index()
     {
-        return MaintenanceCompany::where('is_deleted', false)->get();
+        return MaintenanceCompany::notDeleted()->get();
     }
 
     public function store(MaintenanceCompanyRequest $request)
