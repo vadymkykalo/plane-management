@@ -14,7 +14,7 @@ class ServiceRequestUpdateStatusRequest extends FormRequest
     public function rules()
     {
         return [
-            'status' => 'required|in:pending,in_progress,completed',
+            'status' => 'required|in:in_progress,completed',
             'updated_at' => [
                 'required',
                 'date',

@@ -21,7 +21,7 @@ class ServiceRequestRequest extends FormRequest
             'due_date' => [
                 'required',
                 'date',
-                'after_or_equal:now',
+                'after_or_equal:today',
             ],
             'status' => 'in:pending,in_progress,completed',
         ];
