@@ -41,6 +41,7 @@ The `cli.sh` script provides several commands to help manage your project:
 * Load Database Seeds: `./cli.sh load-db` - Seeds the database with initial data.
 * Run Artisan Commands: `./cli.sh artisan <command>` - Runs the specified Artisan command.
 * Check Container Status: `./cli.sh ps` - Checks the status of the containers.
+* Run test: `./cli.sh artisan test` - Run all test.
 
 ### Directory Structure
 
