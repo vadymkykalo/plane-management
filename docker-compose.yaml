@@ -3,6 +3,7 @@ version: '3.8'
 services:
 
   php-fpm:
+    restart: always
     build:
       context: .
       dockerfile: docker/php-fpm/Dockerfile
@@ -12,6 +13,7 @@ services:
       - ./backend:/var/www/html
     networks:
       - app-network
+    user: www-data
 
   nginx:
     image: nginx:latest
@@ -27,7 +29,7 @@ services:
       - app-network
 
   node:
-    image: node:16
+    image: node:18
     container_name: node
     working_dir: /app
     volumes:

@@ -3,7 +3,6 @@
 set -e
 
 npm-install() {
-#  docker run --rm -v $(pwd)/frontend:/app -w /app node:18 npm install
   echo "Installing Npm requirements"
   docker-compose run --rm node npm install
 }
@@ -17,7 +16,9 @@ npm-install-package() {
     docker-compose run --rm node npm install "$1"
 }
 
-update-permissions() {
+upd-perm() {
+  echo "Update permissions"
+
   GRP_ID=$(id -g)
   docker-compose run --rm --user=root php-fpm chown www-data . -R
   docker-compose run --rm --user=root php-fpm chgrp "$GRP_ID" . -R
@@ -44,10 +45,9 @@ public-storage-perm() {
   sudo chmod -R a+rwx ./backend/storage
 }
 
-setup-env() {
+cp-env() {
     echo "Setting up environment file and generating key..."
-    docker-compose run --rm php-fpm bash -c "cp .env.example .env"
-    docker-compose run --rm php-fpm bash -c "php artisan key:generate"
+    docker-compose run --rm --user=root php-fpm bash -c "chown www-data:www-data /var/www/html -R && chmod -R 775 /var/www/html && cp .env.example .env && php artisan key:generate"
 }
 
 migrate() {
@@ -64,6 +64,10 @@ artisan() {
     docker-compose run --rm php-fpm php artisan "$@"
 }
 
+load-db() {
+  artisan db:seed --class=DatabaseSeeder
+}
+
 start() {
   docker-compose up -d
 }
@@ -74,6 +78,32 @@ stop() {
 
 down() {
   docker-compose down -v
+}
+
+ps() {
+  docker-compose ps
+}
+
+setup() {
+  echo "Start ..."
+
+  echo "Build image .."
+  docker-compose build
+
+  composer-install
+  cp-env
+  public-storage-perm
+
+  docker-compose up -d db
+  docker-compose up -d php-fpm
+  docker-compose up -d nginx
+
+  migrate
+
+  npm-install
+  docker-compose up -d node
+
+  echo "Done!"
 }
 
 _message() {
