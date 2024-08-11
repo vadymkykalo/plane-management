@@ -4,50 +4,53 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AircraftRequest;
-use App\Models\Aircraft;
-use App\Models\AircraftMaintenanceCompany;
+use App\Services\AircraftService;
+use Illuminate\Http\JsonResponse;
 
 class AircraftController extends Controller
 {
-    public function index()
+    protected AircraftService $aircraftService;
+
+    public function __construct(AircraftService $aircraftService)
     {
-        return Aircraft::notDeleted()->get();
+        $this->aircraftService = $aircraftService;
     }
 
-    public function store(AircraftRequest $request)
+    public function index(): JsonResponse
     {
-        $aircraft = Aircraft::create($request->validated());
+        $aircrafts = $this->aircraftService->getAllNotDeleted();
+        return response()->json($aircrafts);
+    }
+
+    public function store(AircraftRequest $request): JsonResponse
+    {
+        $aircraft = $this->aircraftService->create($request->validated());
         return response()->json($aircraft, 201);
     }
 
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
-        $aircraft = Aircraft::notDeleted()->findOrFail($id);
+        $aircraft = $this->aircraftService->findNotDeletedById($id);
         return response()->json($aircraft);
     }
 
-    public function update(AircraftRequest $request, $id)
+    public function update(AircraftRequest $request, int $id): JsonResponse
     {
-        $aircraft = Aircraft::notDeleted()->findOrFail($id);
-        $aircraft->update($request->validated());
+        $aircraft = $this->aircraftService->findNotDeletedById($id);
+        $this->aircraftService->update($aircraft, $request->validated());
         return response()->json($aircraft, 200);
     }
 
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
-        $aircraft = Aircraft::notDeleted()->findOrFail($id);
-        $aircraft->is_deleted = true;
-        $aircraft->save();
+        $aircraft = $this->aircraftService->findNotDeletedById($id);
+        $this->aircraftService->softDelete($aircraft);
         return response()->json(null, 204);
     }
 
-    public function maintenanceHistory($aircraftId)
+    public function maintenanceHistory(int $aircraftId): JsonResponse
     {
-        $history = AircraftMaintenanceCompany::where('aircraft_id', $aircraftId)
-            ->orderBy('created_at', 'desc')
-            ->with('maintenanceCompany')
-            ->get();
-
+        $history = $this->aircraftService->getMaintenanceHistory($aircraftId);
         return response()->json($history);
     }
 }

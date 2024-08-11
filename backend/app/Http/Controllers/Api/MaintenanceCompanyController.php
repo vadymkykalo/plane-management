@@ -4,50 +4,53 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MaintenanceCompanyRequest;
-use App\Models\AircraftMaintenanceCompany;
-use App\Models\MaintenanceCompany;
+use App\Services\MaintenanceCompanyService;
+use Illuminate\Http\JsonResponse;
 
 class MaintenanceCompanyController extends Controller
 {
-    public function index()
+    protected MaintenanceCompanyService $maintenanceCompanyService;
+
+    public function __construct(MaintenanceCompanyService $maintenanceCompanyService)
     {
-        return MaintenanceCompany::notDeleted()->get();
+        $this->maintenanceCompanyService = $maintenanceCompanyService;
     }
 
-    public function store(MaintenanceCompanyRequest $request)
+    public function index(): JsonResponse
     {
-        $maintenanceCompany = MaintenanceCompany::create($request->validated());
-        return response()->json($maintenanceCompany, 201);
+        $companies = $this->maintenanceCompanyService->getAllNotDeleted();
+        return response()->json($companies);
     }
 
-    public function show($id)
+    public function store(MaintenanceCompanyRequest $request): JsonResponse
     {
-        $maintenanceCompany = MaintenanceCompany::notDeleted()->findOrFail($id);
-        return response()->json($maintenanceCompany);
+        $company = $this->maintenanceCompanyService->create($request->validated());
+        return response()->json($company, 201);
     }
 
-    public function update(MaintenanceCompanyRequest $request, $id)
+    public function show(int $id): JsonResponse
     {
-        $maintenanceCompany = MaintenanceCompany::notDeleted()->findOrFail($id);
-        $maintenanceCompany->update($request->validated());
-        return response()->json($maintenanceCompany, 200);
+        $company = $this->maintenanceCompanyService->findNotDeletedById($id);
+        return response()->json($company);
     }
 
-    public function destroy($id)
+    public function update(MaintenanceCompanyRequest $request, int $id): JsonResponse
     {
-        $maintenanceCompany = MaintenanceCompany::notDeleted()->findOrFail($id);
-        $maintenanceCompany->is_deleted = true;
-        $maintenanceCompany->save();
+        $company = $this->maintenanceCompanyService->findNotDeletedById($id);
+        $this->maintenanceCompanyService->update($company, $request->validated());
+        return response()->json($company, 200);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $company = $this->maintenanceCompanyService->findNotDeletedById($id);
+        $this->maintenanceCompanyService->softDelete($company);
         return response()->json(null, 204);
     }
 
-    public function maintenanceHistory($maintenanceCompanyId)
+    public function maintenanceHistory(int $maintenanceCompanyId): JsonResponse
     {
-        $history = AircraftMaintenanceCompany::where('maintenance_company_id', $maintenanceCompanyId)
-            ->orderBy('created_at', 'desc')
-            ->with(['aircraft', 'serviceRequest'])
-            ->get();
-
+        $history = $this->maintenanceCompanyService->getMaintenanceHistory($maintenanceCompanyId);
         return response()->json($history);
     }
 }

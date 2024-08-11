@@ -5,90 +5,47 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ServiceRequestRequest;
 use App\Http\Requests\ServiceRequestUpdateStatusRequest;
-use App\Models\AircraftMaintenanceCompany;
-use App\Models\ServiceRequest;
-use Carbon\Carbon;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Services\ServiceRequestService;
+use Illuminate\Http\JsonResponse;
 
 class ServiceRequestController extends Controller
 {
-    public function index()
+    protected ServiceRequestService $serviceRequestService;
+
+    public function __construct(ServiceRequestService $serviceRequestService)
     {
-        return ServiceRequest::get();
+        $this->serviceRequestService = $serviceRequestService;
     }
 
-    public function store(ServiceRequestRequest $request)
+    public function index(): JsonResponse
     {
-        $serviceRequest = ServiceRequest::create(array_merge(
-            $request->validated(),
-            [
-                'status' => ServiceRequest::STATUS_PENDING
-            ]
-        ));
+        $serviceRequests = $this->serviceRequestService->getAll();
+        return response()->json($serviceRequests);
+    }
 
+    public function store(ServiceRequestRequest $request): JsonResponse
+    {
+        $serviceRequest = $this->serviceRequestService->create($request->validated());
         return response()->json($serviceRequest, 201);
     }
 
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
-        $serviceRequest = ServiceRequest::findOrFail($id);
+        $serviceRequest = $this->serviceRequestService->findById($id);
         return response()->json($serviceRequest);
     }
 
-    public function update(ServiceRequestRequest $request, $id)
+    public function update(ServiceRequestRequest $request, int $id): JsonResponse
     {
-        $serviceRequest = ServiceRequest::findOrFail($id);
-        $serviceRequest->update($request->validated());
-
-        return response()->json($serviceRequest, 200);
+        $serviceRequest = $this->serviceRequestService->findById($id);
+        $updatedServiceRequest = $this->serviceRequestService->update($serviceRequest, $request->validated());
+        return response()->json($updatedServiceRequest, 200);
     }
 
-    public function updateStatus(ServiceRequestUpdateStatusRequest $request, $id)
+    public function updateStatus(ServiceRequestUpdateStatusRequest $request, int $id): JsonResponse
     {
-        $serviceRequest = ServiceRequest::findOrFail($id);
-        $currentDate = Carbon::now();
-
-        switch ($request->status) {
-            case ServiceRequest::STATUS_IN_PROGRESS:
-                if ($serviceRequest->status !== ServiceRequest::STATUS_PENDING) {
-                    throw new HttpException(400, 'Invalid status transition.');
-                }
-                if ($currentDate->lessThan($serviceRequest->due_date)) {
-                    throw new HttpException(400, 'Cannot start progress before the due date.');
-                }
-
-                $serviceRequest->status = ServiceRequest::STATUS_IN_PROGRESS;
-                break;
-
-            case ServiceRequest::STATUS_COMPLETED:
-                if ($serviceRequest->status !== ServiceRequest::STATUS_IN_PROGRESS) {
-                    throw new HttpException(400, 'Invalid status transition.');
-                }
-
-                $serviceRequest->status = ServiceRequest::STATUS_COMPLETED;
-                break;
-
-            default:
-                throw new HttpException(400, 'Invalid status.');
-        }
-
-        $serviceRequest->save();
-
-        if ($serviceRequest->status === ServiceRequest::STATUS_IN_PROGRESS) {
-            $this->createMaintenanceCompanyRecord($serviceRequest);
-        }
-
-        return response()->json($serviceRequest, 200);
-    }
-
-    private function createMaintenanceCompanyRecord(ServiceRequest $serviceRequest)
-    {
-        AircraftMaintenanceCompany::create([
-            'service_requests_id' => $serviceRequest->id,
-            'aircraft_id' => $serviceRequest->aircraft_id,
-            'maintenance_company_id' => $serviceRequest->maintenance_company_id,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
+        $serviceRequest = $this->serviceRequestService->findById($id);
+        $updatedServiceRequest = $this->serviceRequestService->updateStatus($serviceRequest, $request->status);
+        return response()->json($updatedServiceRequest, 200);
     }
 }
