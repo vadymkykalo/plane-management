@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ServiceRequestService
+class ServiceRequestService implements ServiceRequestServiceInterface
 {
     protected ServiceRequest $serviceRequest;
     protected AircraftMaintenanceCompany $aircraftMaintenanceCompany;

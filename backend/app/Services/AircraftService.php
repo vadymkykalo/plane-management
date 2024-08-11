@@ -6,7 +6,7 @@ use App\Models\Aircraft;
 use App\Models\AircraftMaintenanceCompany;
 use Illuminate\Database\Eloquent\Collection;
 
-class AircraftService
+class AircraftService implements AircraftServiceInterface
 {
     protected Aircraft $aircraft;
     protected AircraftMaintenanceCompany $aircraftMaintenanceCompany;

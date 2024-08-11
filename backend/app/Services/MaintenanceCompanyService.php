@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\AircraftMaintenanceCompany;
 use App\Models\MaintenanceCompany;
 
-class MaintenanceCompanyService
+class MaintenanceCompanyService implements MaintenanceCompanyServiceInterface
 {
     protected MaintenanceCompany $maintenanceCompany;
     protected AircraftMaintenanceCompany $aircraftMaintenanceCompany;
