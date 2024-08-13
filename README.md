@@ -1,4 +1,4 @@
-# Project Name
+# Plane Service Management System
 
 ## Description
 
@@ -15,6 +15,18 @@ This project is a web-based management system for aircraft service requests and 
 
 - Docker and Docker Compose must be installed on your system.
 - Basic knowledge of Docker, Laravel, and React.js is assumed.
+
+## Demo
+- Aircraft Management
+
+![aircraft](./screenshots/aircraft.png)
+- Service Request Management
+
+![service](./screenshots/service.png)
+
+- Maintenance Company Management
+
+![maintenance](./screenshots/maintenance.png)
 
 ## Installation and Setup
 
